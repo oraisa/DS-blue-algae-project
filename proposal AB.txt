@@ -4,4 +4,4 @@ Blue algae and Human health
 B. Elevator pitch [max 400 characters]
 It is crucial to deploy proper health care services to suffice the demand and disease outbreaks of a place.
 Finding the relationship between the amount of blue algae and cases of health hazards in a geographical area is what this project aims to accomplish.
-This can prove to be extremely useful in understanding the demand of health care services and planning in a given location.
+This can prove to be extremely useful in preparing for the demand and planning the health care services in a given location .
