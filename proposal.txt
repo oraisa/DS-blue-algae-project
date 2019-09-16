@@ -1,0 +1,19 @@
+
+C. Data: sources, wrangling, management
+A data source we have already found and done some cleaning on is
+the blue algae archive from the Lake and Sea wiki
+(https://www.jarviwiki.fi/wiki/Lev%C3%A4arkisto).
+The tables page there gets it's data from an api that returns
+individual measurements as json. Converting the json to a more usable
+format requires some processing. THL has a bunch of datasets
+relating to healthcare in Finland
+(https://thl.fi/en/web/thlfi-en/statistics/statistical-databases/open-data)
+which could be combined with the blue algae data to see the effects of the algae
+on health, for example visits to doctors. One of the challenges for the
+project is finding data that might be effected by the algae.
+
+D. Data analysis: statistics, machine learning
+One challenge for the project is finding the right methods to analyse the data.
+Possible methods could be looking at correlation between patient
+and algae numbers, or predicting the former from the latter for example
+linear regression.
