@@ -1,4 +1,12 @@
 
+A. Title of the project
+Blue algae and Human health
+
+B. Elevator pitch [max 400 characters]
+It is crucial to deploy proper health care services to suffice the demand and disease outbreaks of a place.
+Finding the relationship between the amount of blue algae and cases of health hazards in a geographical area is what this project aims to accomplish.
+This can prove to be extremely useful in preparing for the demand and planning the health care services in a given location.
+
 C. Data: sources, wrangling, management
 A data source we have already found and done some cleaning on is
 the blue algae archive from the Lake and Sea wiki
@@ -17,3 +25,16 @@ One challenge for the project is finding the right methods to analyse the data.
 Possible methods could be looking at correlation between patient
 and algae numbers, or predicting the former from the latter for example
 linear regression.
+
+E:
+The maim goal of the project to investigate the effects of the cyanobacteria blue algae
+on health.
+To visualize the distribution of algae in different places we can use 1)bubble chart, 2)density plot, 3)histogram, 4)dot map or 5)proportional area chart.
+To visualize some temporary changes can be applied line graph.
+To visualize the different correlations (for example, the correlation between level of algae and number of doctor visits) probably will be used the scatterplot. Also it could be use to visualize the predictions (regression).
+F:
+In our case there are three  end-users groups.
+The first group is the healthcare workers and hospital staff.
+The information acquired from data can help them to 1)correctly distribute doctors in different hospitals, 2)provide certain hospitals with a required amount of specific equipment.
+The second group is residents of Finland who are going to purchase or rent housing. The information can help them to choose a safety place for living.
+The third group is the algae scientists.
