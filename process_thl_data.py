@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+# Data can be downloaded from
+# https://sampo.thl.fi/pivot/prod/fi/avopika/pikarap01/fact_ahil_pikarap01.csv?row=palveluntuottaja-349235L&column=viikko-349531L
 
 raw_df = pd.read_csv("fact_ahil_pikarap01.csv", sep=";")
 providers = raw_df.Palveluntuottaja.value_counts().index.sort_values()
