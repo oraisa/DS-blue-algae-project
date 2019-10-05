@@ -8,3 +8,8 @@ The data for thl_data.csv is the [API](https://yhteistyotilat.fi/wiki08/display/
 retrieved under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)
 license. The format of the file is different from the
 data the API provides.
+
+Weather and air quality data is from the API of the
+[Finnish Meteological Institute](https://en.ilmatieteenlaitos.fi/)
+used under a Creative Commons license. The data has been aggregated
+from the original format.
