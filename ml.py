@@ -12,10 +12,14 @@ import sklearn.model_selection
 
 visits = pd.read_csv("visits.csv")
 algae = pd.read_csv("algae.csv")
-temp_tampere = pd.read_csv("temperature_tampere.csv", header=None, names=["Time", "Temperature"])
-temp_tampere.set_index("Time", inplace=True)
-aq_tampere = pd.read_csv("airquality_tampere.csv", header=None, names=["Time", "Air Quality"])
-aq_tampere.set_index("Time", inplace=True)
+temps = pd.read_csv("temperature.csv").set_index("Municipality")
+rains = pd.read_csv("rains.csv").set_index("Municipality")
+aqs = pd.read_csv("airquality.csv").set_index("Municipality")
+
+# temp_tampere = pd.read_csv("temperature_tampere.csv", header=None, names=["Time", "Temperature"])
+# temp_tampere.set_index("Time", inplace=True)
+# aq_tampere = pd.read_csv("airquality_tampere.csv", header=None, names=["Time", "Air Quality"])
+# aq_tampere.set_index("Time", inplace=True)
 
 def columns_rename_visits(col):
     match = re.match("(\d*)_(\d*)", col)
@@ -35,45 +39,47 @@ def columns_rename_algae(col):
     else:
         return col
 
-
 visits.rename(inplace=True, columns=columns_rename_visits)
 algae.rename(inplace=True, columns=columns_rename_algae)
 visits.rename(inplace=True, columns={"Municipality": "municipality"})
-# visits = visits[algae.columns]
 visits.set_index("municipality", inplace=True)
 algae.set_index("municipality", inplace=True)
-algae.fillna(0, inplace=True)
+# not_na_algae = algae[algae.apply(lambda row: row.isna().sum() <= 0, axis=1)]
+# algae.fillna(0, inplace=True)
 
 def underflow_year_week(year, week):
     if week <= 0:
         return (year - 1, 52 + week)
     else:
         return (year, week)
-def get_data_week_and_two_previous(year_week, dataset):
-    year, week = year_week
-    return [dataset.loc[str(underflow_year_week(year, w))].values[0] for w in range(week, week - 5, -1)]
 
-def get_algae_week_and_two_previous(year_week, municipality):
-    def is_column_in_algae(year, week):
-        if year == 2018: return 23 <= week <= 39
-        else: return 23 <= week <= 37
+def get_data_week_and_two_previous(year_week, municipality, dataset):
     year = year_week[0]
     week = year_week[1]
-    return [algae.loc[municipality][(year, w)] if is_column_in_algae(year, w) else 0 for w in range(week, week - 5, -1)]
+    return [
+        dataset.loc[municipality][underflow_year_week(year, w)]
+        if underflow_year_week(year, w) in dataset.columns else 0
+        for w in range(week, week - 4, -1)
+    ]
 
-# iter = [
-#     get_algae_week_and_two_previous(col, "Tampere")
-#     + get_data_week_and_two_previous(col, temp_tampere)
-#     + get_data_week_and_two_previous(col, aq_tampere)
-#     + [visits.loc["Tampere"][col]]
-#     for col in visits.columns
-# ]
+algae_places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti"]
+places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
 iter = [
-    get_data_week_and_two_previous(col, temp_tampere)
-    + get_data_week_and_two_previous(col, aq_tampere)
-    + [algae.loc["Tampere"][col]]
-    for col in algae.columns
+    get_data_week_and_two_previous(col, place, algae)
+    + get_data_week_and_two_previous(col, place, temps)
+    + get_data_week_and_two_previous(col, place, rains)
+    + get_data_week_and_two_previous(col, place, aqs)
+    + [visits.loc[place].mean()]
+    + [visits.loc[place][col]]
+    for col in visits.columns
+    for place in algae_places
 ]
+# iter = [
+#     get_data_week_and_two_previous(col, temp_tampere)
+#     + get_data_week_and_two_previous(col, aq_tampere)
+#     + [algae.loc["Tampere"][col]]
+#     for col in algae.columns
+# ]
 data = np.stack(iter)
 features = data.shape[1]
 X = data[:, 0:features - 1]
