@@ -13,3 +13,8 @@ Weather and air quality data is from the API of the
 [Finnish Meteological Institute](https://en.ilmatieteenlaitos.fi/)
 used under a Creative Commons license. The data has been aggregated
 from the original format.
+
+Population downloaded from Statictics Finland interface services
+Municipal key figures and Preliminary population structure by area
+on 15.10.2019 with license [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en).
+The data has been cleaned.
