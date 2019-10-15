@@ -16,6 +16,15 @@ temps = pd.read_csv("temperature.csv").set_index("Municipality")
 rains = pd.read_csv("rains.csv").set_index("Municipality")
 aqs = pd.read_csv("airquality.csv").set_index("Municipality")
 
+population2018 = pd.read_csv("population2018.csv")
+population2018.rename(columns={"Alue 2019": "Municipality"}, inplace=True)
+population2018.drop(["Tiedot"], axis=1, inplace=True)
+population2018.set_index("Municipality", inplace=True)
+population2019 = pd.read_csv("population2019.csv")
+population2019.rename(columns={"Alue": "Municipality", "Yhteensä Yhteensä Väkiluku": "2019"}, inplace=True)
+population2019.drop(["Kuukausi"], axis=1, inplace=True)
+population2019.set_index("Municipality", inplace=True)
+population = pd.concat([population2018, population2019], axis=1, sort=True)
 # temp_tampere = pd.read_csv("temperature_tampere.csv", header=None, names=["Time", "Temperature"])
 # temp_tampere.set_index("Time", inplace=True)
 # aq_tampere = pd.read_csv("airquality_tampere.csv", header=None, names=["Time", "Air Quality"])
@@ -69,8 +78,8 @@ iter = [
     + get_data_week_and_two_previous(col, place, temps)
     + get_data_week_and_two_previous(col, place, rains)
     + get_data_week_and_two_previous(col, place, aqs)
-    + [visits.loc[place].mean()]
-    + [visits.loc[place][col]]
+    # + [visits.loc[place].mean()]
+    + [visits.loc[place][col] / population.loc[place][str(col[0])]]
     for col in visits.columns
     for place in algae_places
 ]
