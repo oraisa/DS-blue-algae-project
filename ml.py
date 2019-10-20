@@ -9,6 +9,11 @@ import sklearn.ensemble
 import sklearn.preprocessing
 import sklearn.pipeline
 import sklearn.model_selection
+import sklearn.tree
+import numpy.random
+import matplotlib.pyplot as plt
+
+np.random.seed(634763)
 
 visits = pd.read_csv("visits.csv")
 algae = pd.read_csv("algae.csv")
@@ -53,8 +58,6 @@ algae.rename(inplace=True, columns=columns_rename_algae)
 visits.rename(inplace=True, columns={"Municipality": "municipality"})
 visits.set_index("municipality", inplace=True)
 algae.set_index("municipality", inplace=True)
-# not_na_algae = algae[algae.apply(lambda row: row.isna().sum() <= 0, axis=1)]
-# algae.fillna(0, inplace=True)
 
 def underflow_year_week(year, week):
     if week <= 0:
@@ -71,17 +74,19 @@ def get_data_week_and_two_previous(year_week, municipality, dataset):
         for w in range(week, week - 4, -1)
     ]
 
-algae_places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti"]
-places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
+# algae_places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti"]
+# places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
+places = list(set.intersection(set(temps.index), set(rains.index), set(aqs.index)))
+places.sort()
 iter = [
     get_data_week_and_two_previous(col, place, algae)
     + get_data_week_and_two_previous(col, place, temps)
     + get_data_week_and_two_previous(col, place, rains)
     + get_data_week_and_two_previous(col, place, aqs)
-    # + [visits.loc[place].mean()]
+    # + [population.loc[place][str(col[0])]]
     + [visits.loc[place][col] / population.loc[place][str(col[0])]]
     for col in visits.columns
-    for place in algae_places
+    for place in places
 ]
 # iter = [
 #     get_data_week_and_two_previous(col, temp_tampere)
@@ -98,17 +103,20 @@ X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y
 scaler = sklearn.preprocessing.StandardScaler()
 
 lm = sklearn.linear_model.LinearRegression()
-lm_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", lm)])
-lm_pipe.fit(X_train, y_train)
+# lm_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", lm)])
+lm.fit(X_train, y_train)
 
-forest = sklearn.ensemble.RandomForestRegressor(n_estimators=100, max_depth=3, random_state=4324)
-forest_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", forest)])
-forest_pipe.fit(X_train, y_train)
+forest = sklearn.ensemble.RandomForestRegressor(n_estimators=100, max_depth=30, random_state=4324)
+# forest_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", forest)])
+forest.fit(X_train, y_train)
 
-svm = sklearn.svm.SVR()
-svm_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", svm)])
-svm_pipe.fit(X_train, y_train)
+tree = sklearn.tree.DecisionTreeRegressor(max_depth=3, random_state=575767)
+tree.fit(X_train, y_train)
 
-print("Lm score: {}, {}".format(lm_pipe.score(X_train, y_train), lm_pipe.score(X_test, y_test)))
-print("Forest score: {}, {}".format(forest_pipe.score(X_train, y_train), forest_pipe.score(X_test, y_test)))
-print("SVM score: {}, {}".format(svm_pipe.score(X_train, y_train), svm_pipe.score(X_test, y_test)))
+print("Linear Regression & {:.3f} & {:.3f} \\\\".format(lm.score(X_train, y_train), lm.score(X_test, y_test)))
+print("Random Forest & {:.3f} & {:.3f} \\\\".format(forest.score(X_train, y_train), forest.score(X_test, y_test)))
+print("Decision Tree & {:.3f} & {:.3f} \\\\".format(tree.score(X_train, y_train), tree.score(X_test, y_test)))
+
+fig, ax = plt.subplots(figsize=(15, 5))
+sklearn.tree.plot_tree(tree, filled=True, impurity=False, fontsize=10, ax=ax)
+plt.show()

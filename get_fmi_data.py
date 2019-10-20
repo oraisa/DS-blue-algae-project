@@ -86,6 +86,8 @@ def get_weather_params(start_time, end_time, place):
 def get_aq_data_for_place(place):
     dfs = [get_data_for_period(get_aq_params(period, place)) for period in generate_start_ends()]
     df = pd.concat(dfs)
+    if len(df.index) == 0:
+        return None
     df = df.groupby("Year, Week").mean()
     return pd.DataFrame(df["fi-1-1-AQINDEX_PT1H_avg"]).transpose().assign(Municipality=place)
 
@@ -94,22 +96,31 @@ end_times = ["2019-10-01", "2018-12-31", "2017-12-31"]
 def get_weather_data_for_place(place):
     dfs = [get_data_for_period(get_weather_params(start_times[i], end_times[i], place)) for i in range(len(start_times))]
     df = pd.concat(dfs)
+    if len(df.index) == 0:
+        return None
     df = df.groupby("Year, Week").mean()
     return (
         pd.DataFrame(df["fi-1-1-tday"]).transpose().assign(Municipality=place),
         pd.DataFrame(df["fi-1-1-rrday"]).transpose().assign(Municipality=place)
     )
 
-places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
+algae = pd.read_csv("algae.csv")
+algae.set_index("municipality", inplace=True)
+population = pd.read_csv("population.csv").set_index("municipality")
+enough_pop_algae = algae.dropna()[population["2018"] > 10000]
+
+# places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
+places = enough_pop_algae.index
 weather_calls = len(places) * len(start_times)
 aq_calls = len(list(generate_start_ends())) * len(places)
 print("Making {}/20000 calls".format(aq_calls + weather_calls))
 
 dfs = [get_aq_data_for_place(place) for place in places]
-aq_df = pd.concat(dfs).set_index("Municipality")
+aq_df = pd.concat((df for df in dfs if df is not None)).set_index("Municipality")
 aq_df.to_csv("airquality.csv")
 
 dfs = [get_weather_data_for_place(place) for place in places]
+dfs = (df for df in dfs if df is not None)
 dftuple = [pd.concat(dflist) for dflist in zip(*dfs)]
 temp_df = dftuple[0].set_index("Municipality")
 temp_df.to_csv("temperature.csv")
