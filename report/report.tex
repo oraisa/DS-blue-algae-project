@@ -47,6 +47,12 @@ subproviders are. Then the providers were grouped by their municipality
 and the groups were summed with missing values assumed to be zeros
 giving healthcare visits for each municipality for each week.
 
+Figures \ref{visits} and \ref{visitsperpop} show the
+visits and visits per population for all municipalities included
+in the analysis. The drop during the last week may be
+due to the data being collected in the middle of the week.
+We were not able to explain the drop when the year changes.
+
 \subsection{Algae}
 The algae data is from an API used by the
 \href{https://www.jarviwiki.fi/wiki/Toiminnot:Semanttinen_kysely/Lev%C3%A4taulukko}
@@ -105,6 +111,8 @@ previous weeks, the number of which was varied.
 The table also had the population of the municipality
 for the row's year and finally the number of healthcare
 visits for the week and municipality.
+For the weeks outside the period where algae data
+is gathered we assumed that no algae was present.
 
 At first we ran linear regression, random forest regression
 and support vector machine regression on the data for just
@@ -183,6 +191,18 @@ As the training score is low even for
 the random forest we tried increasing the maximum depth of
 the it which, but it did not change the scores significantly.
 
+\section{Conclusion}
+Our experiements show that population is
+a good predictor of healthcare visits, which
+is to be expected. The other included features
+are not good predictors. This is likely due
+to people going to the doctors for many different
+reasons, with blue algae accounting for a small
+percentage of them. Limiting the visits
+to only include symptoms or diagnoses related to
+blue algae could allow to find a correlation,
+but unfortunately THL does not have open
+data on a weekly timespace that could be used.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{tree1}
@@ -193,5 +213,41 @@ Most nodes only use the population.
 \label{tree1}
 \end{figure}
 
+\begin{figure}
+\includegraphics[width=\textwidth]{predictions1}
+\caption{
+Healthcare visits in Vaasa. The prediction is very
+constant and does not capture the changes in
+visits. The change of prediction in
+2019 is a result of the population changing.
+}
+\label{predictions1}
+\end{figure}
 
+\begin{figure}
+\includegraphics[width=\textwidth]{predictions2}
+\caption{
+Healthcare visits per population in Vaasa.
+The prediction is still constant and does not
+capture the changes in
+visits. It is also in a completely wrong place.
+}
+\label{predictions2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{visits}
+\caption{
+Healthcare visits for all municipalities.
+}
+\label{visits}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{visitsperpop}
+\caption{
+Healthcare visits per population in municipalities.
+}
+\label{visitsperpop}
+\end{figure}
 \end{document}

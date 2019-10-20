@@ -12,6 +12,7 @@ import sklearn.model_selection
 import sklearn.tree
 import numpy.random
 import matplotlib.pyplot as plt
+import matplotlib.dates as pltdates
 
 np.random.seed(634763)
 
@@ -78,6 +79,7 @@ def get_data_week_and_two_previous(year_week, municipality, dataset):
 # places = ["Oulu", "Tampere", "Naantali", "Vaasa", "Raahe", "Lahti", "Helsinki", "Espoo"]
 places = list(set.intersection(set(temps.index), set(rains.index), set(aqs.index)))
 places.sort()
+
 iter = [
     get_data_week_and_two_previous(col, place, algae)
     + get_data_week_and_two_previous(col, place, temps)
@@ -106,7 +108,7 @@ lm = sklearn.linear_model.LinearRegression()
 # lm_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", lm)])
 lm.fit(X_train, y_train)
 
-forest = sklearn.ensemble.RandomForestRegressor(n_estimators=100, max_depth=30, random_state=4324)
+forest = sklearn.ensemble.RandomForestRegressor(n_estimators=100, max_depth=10, random_state=4324)
 # forest_pipe = sklearn.pipeline.Pipeline([("Scale", scaler), ("Model", forest)])
 forest.fit(X_train, y_train)
 
@@ -117,6 +119,40 @@ print("Linear Regression & {:.3f} & {:.3f} \\\\".format(lm.score(X_train, y_trai
 print("Random Forest & {:.3f} & {:.3f} \\\\".format(forest.score(X_train, y_train), forest.score(X_test, y_test)))
 print("Decision Tree & {:.3f} & {:.3f} \\\\".format(tree.score(X_train, y_train), tree.score(X_test, y_test)))
 
-fig, ax = plt.subplots(figsize=(15, 5))
-sklearn.tree.plot_tree(tree, filled=True, impurity=False, fontsize=10, ax=ax)
-plt.show()
+# fig, ax = plt.subplots(figsize=(15, 5))
+# sklearn.tree.plot_tree(tree, filled=True, impurity=False, fontsize=10, ax=ax)
+# plt.show()
+
+vaasa_iter = [
+    get_data_week_and_two_previous(col, "Vaasa", algae)
+    + get_data_week_and_two_previous(col, "Vaasa", temps)
+    + get_data_week_and_two_previous(col, "Vaasa", rains)
+    + get_data_week_and_two_previous(col, "Vaasa", aqs)
+    # + [population.loc["Vaasa"][str(col[0])]]
+    + [visits.loc["Vaasa"][col] / population.loc["Vaasa"][str(col[0])]]
+    for col in visits.columns
+]
+vaasa_data = np.stack(vaasa_iter)
+vaasa_X = vaasa_data[:, 0:features - 1]
+vaasa_y = vaasa_data[:, features - 1:features].reshape(vaasa_data.shape[0])
+vaasa_prediction = forest.predict(vaasa_X)
+dates = [
+    datetime.datetime(year=year_week[0], month=1, day=1) + datetime.timedelta(days=year_week[1] * 7)
+    for year_week in visits.columns
+]
+# fig, ax = plt.subplots()
+# ax.xaxis.set_major_locator(pltdates.YearLocator())
+# ax.xaxis.set_minor_locator(pltdates.MonthLocator())
+# ax.plot(dates, vaasa_prediction, label="Prediction")
+# ax.plot(dates, vaasa_y, label="Actual")
+# ax.legend()
+# fig.show()
+
+fig, ax = plt.subplots()
+ax.xaxis.set_major_locator(pltdates.YearLocator())
+ax.xaxis.set_minor_locator(pltdates.MonthLocator())
+for place in places:
+    divisor = np.array([population.loc[place][str(date.year)] for date in dates])
+    ax.plot(dates, visits.loc[place], label=place)
+ax.legend(loc="upper left", bbox_to_anchor=(1,1), fontsize=8)
+fig.show()
