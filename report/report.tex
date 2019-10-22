@@ -12,6 +12,7 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{icomma}
+\usepackage{caption}
 \usepackage{hyperref}
 
 \newcommand{\sijoitus}[2]%
@@ -148,21 +149,25 @@ population, for a total of
 17 features. With 22 cities the dataset has 1980 rows.
 The random forest has 100 trees with 10 maximum depth
 and the decision tree has 3 maximum depth to allow
-inspecting it. The next table shows the results.\\
+inspecting it.
 
+Table \ref{table1} shows the results.
+Surprisingly even the very simple decision tree
+gets a high score. Figure \ref{predictions1} shows
+the actual and predicted visits for Vaasa.
+The prediction almost constant and does not capture
+the changes in visits.
+
+\begin{center}
 \begin{tabular}{l l l}
 Model & Training \(R^2\) & Test \(R^2\) \\
 Linear Regression & 0.783 & 0.794 \\
 Random Forest & 0.955 & 0.950 \\
 Decision Tree & 0.911 & 0.922 \\
 \end{tabular}
-\\
-
-Surprisingly even the very simple decision tree
-gets a high score. Figure \ref{predictions1} shows
-the actual and predicted visits for Vaasa.
-The prediction almost constant and does not capture
-the changes in visits.
+\end{center}
+\captionof{table}{Results of the first experiement}
+\label{table1}
 
 \begin{figure}[h]
 \includegraphics[width=\textwidth]{predictions1}
@@ -198,33 +203,42 @@ explains most of the healthcare visits, which is
 to be expected. To see if the other features are useful at all,
 for the next experiement we removed all features
 except population. Model parameters were not changed.
-The next table shows the results.\\
 
+Table \ref{table2} shows the results.
+The test scores show very minor drops for random forest
+and decision tree and no change for linear regression,
+meaning that the other features are not very useful
+in the prediction.
+
+\begin{table}[h]
+\begin{center}
 \begin{tabular}{l l l}
 Model & Training \(R^2\) & Test \(R^2\) \\
 Linear Regression & 0.783 & 0.794 \\
 Random Forest & 0.944 & 0.949 \\
 Decision Tree & 0.910 & 0.920 \\
 \end{tabular}
-\\
-
-The test scores show very minor drops for random forest
-and decision tree and no change for linear regression,
-meaning that the other features are not very useful
-in the prediction.
+\end{center}
+\caption{Results of the second experiement}
+\label{table2}
+\end{table}
 
 For the final experiement we replaces healthcare
 visits with visits per population and
 removed population from the features.
-The table shows the scores.\\
+Table \ref{table3} shows the results.
 
+\begin{center}
 \begin{tabular}{l l l}
 Model & Training \(R^2\) & Test \(R^2\) \\
 Linear Regression & 0.017 & -0.003 \\
 Random Forest & 0.097 & -0.021 \\
 Decision Tree & 0.026 & -0.001 \\
 \end{tabular}
-\\
+\end{center}
+\captionof{table}{Results of the third experiement}
+\label{table3}
+\vspace{1.5em}
 
 The scores are very bad so the features are not able
 to predict the healthcare visits per population.
